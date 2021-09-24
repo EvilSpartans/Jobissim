@@ -53,8 +53,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function search($term)
     {
         return $this->createQueryBuilder('u')
-            ->where('u.firstname LIKE :term')
-            ->orWhere('u.lastname LIKE :term')
+            ->where("SOUNDEX(u.firstname) LIKE SOUNDEX(:term) OR u.firstname LIKE :term")
+            ->orWhere("SOUNDEX(u.lastname) LIKE SOUNDEX(:term) OR u.lastname LIKE :term")
             ->setParameter('term', '%' . $term . '%')
             ->getQuery()
             ->execute();
@@ -67,8 +67,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         return $this->createQueryBuilder('u')
             ->select('u.id, u.firstname, u.lastname, u.avatar')
-            ->where('u.firstname LIKE :term')
-            ->orWhere('u.lastname LIKE :term')
+            ->where("SOUNDEX(u.firstname) LIKE SOUNDEX(:term) OR u.firstname LIKE :term")
+            ->orWhere("SOUNDEX(u.lastname) LIKE SOUNDEX(:term) OR u.lastname LIKE :term")
             ->setParameter('term', '%' . $term . '%')
             ->getQuery()
             ->getResult();

@@ -36,9 +36,9 @@ class SearchController extends AbstractController
     }
 
     /**
-     * @Route("/autocomplete/{search}", name="autocomplete", methods={"GET"})
+     * @Route("/autocomplete/{search?}", name="autocomplete", methods={"POST", "GET"})
      */
-    public function autocomplete(UserRepository $userRepository, PostRepository $postRepository, Request $request, string $search): JsonResponse
+    public function autocomplete(UserRepository $userRepository, PostRepository $postRepository, $search): JsonResponse
     {
         $users = $userRepository->autocomplete($search);
         $outputUsers = [];

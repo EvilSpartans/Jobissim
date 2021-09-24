@@ -102,8 +102,8 @@ class PostRepository extends ServiceEntityRepository
     public function search($term)
     {
         return $this->createQueryBuilder('p')
-            ->where('p.title LIKE :term')
-            ->orWhere('p.hashtag LIKE :term')
+            ->where("SOUNDEX(p.title) LIKE SOUNDEX(:term) OR p.title LIKE :term")
+            ->orWhere("SOUNDEX(p.hashtag) LIKE SOUNDEX(:term) OR p.hashtag LIKE :term")
             ->setParameter('term', '%' . $term . '%')
             ->getQuery()
             ->execute();
@@ -116,8 +116,8 @@ class PostRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('u')
             ->select('u.id, u.title, u.image, u.hashtag')
-            ->where('u.title LIKE :term')
-            ->orWhere('u.hashtag LIKE :term')
+            ->where("SOUNDEX(u.title) LIKE SOUNDEX(:term) OR u.title LIKE :term")
+            ->orWhere("SOUNDEX(u.hashtag) LIKE SOUNDEX(:term) OR u.hashtag LIKE :term")
             ->setParameter('term', '%' . $term . '%')
             ->getQuery()
             ->getResult();

@@ -366,7 +366,47 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="{{ asset('assets/js/main.js')}}"></script>
     <script src="{{ asset('assets/js/like.js') }}"></script>
-    <script src="{{ asset('assets/js/search.js') }}"></script>
+    <script src="{{ asset('assets/js/bloodhound.jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/js/typeahead.jquery.min.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            var term = $("#tags").val();
+            var datas = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.whitespace,
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: "{{ path('autocomplete') }}/%QUERY%",
+                    wildcard: "%QUERY%",
+                    filter: function (datas) {
+                        return $.map(datas, function (data) {
+                            return $.map(data, function (item) {
+                                console.log(item);
+                                return {
+                                    item_id: item.id,
+                                    item_name: item.name,
+                                    item_image: item.image,
+                                };
+                            })
+                        });
+                    },
+                },
+            });
+            datas.initialize();
+            $("#tags").typeahead(
+                { hint: true, },
+                {
+                    name: "datas",
+                    source: datas.ttAdapter(),
+                    templates: {
+                        suggestion: function (item) {
+                            return `<div class='datafetch'><ul><li>${item.name}</li></ul></div>`;
+                        },
+                    },
+                }
+            );
+        });
+
+    </script>
     <!-- End JS -->
 
     {% block javascript %}
