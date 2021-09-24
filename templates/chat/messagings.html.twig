@@ -1,5 +1,15 @@
 {% extends 'base.html.twig' %}
 {% block title %}Messagerie{% endblock %}
+{% block stylesheets %}
+<style>
+    .select2-selection{
+        height: 50px !important;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+        font-size: 11px;
+    }
+</style>
+{% endblock %}
 {% block body %}
     <link rel="stylesheet" href="{{ asset('assets/css/chat.css') }}">
     <div class="content-wrapper">
@@ -11,9 +21,10 @@
                             <div class="users-container">
                                 <div class="chat-search-box">
                                     <div class="input-group">
-                                        <input class="form-control js-participants" placeholder="Rechercher" id="js-participants">
+                                        <select class="form-control js-participants" placeholder="Rechercher" id="js-participants" multiple="multiple">
+                                        </select>
                                         <div class="input-group-btn">
-                                            <button type="button" class="btn btn-info">
+                                            <button type="button" class="btn btn-info" id="new-messaging">
                                                 <i class="fa fa-search"></i>
                                             </button>
                                         </div>
@@ -46,6 +57,20 @@
 <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 <script>
 $(document).ready(function() {
+
+     let outputUsers = []
+     $.ajax({
+         url: '{{ path('users_followed_list_by_user') }}',
+         type: 'GET',
+         success: function (users) {
+             $(users).each(function(e, user) {
+                 console.log(user)
+                 outputUsers.push('<option value='+user.id+'>'+user.username+'</option>')
+             })
+             $('#js-participants').html(outputUsers)
+         }
+     })
+
     $('.js-participants').select2()
     $.ajax({
      url: '{{ path('chat_list_by_user', {'id': app.user.id}) }}',
@@ -141,6 +166,14 @@ $(document).ready(function() {
          }
       })
     }
+
+    $('#new-messaging').click(function() {
+        // si l'id de celui ci nexiste pas en bdd alors on affiche une nouvelle fenetre de message
+        // sinon on recupere la conv associé
+        // ou alors au chargement de la liste messaging on injecte dans option en data id l'id de la conv
+        //et si celui ci est inexistant alors on affiche une nouvelle fenetre, sinon on recupere la conv existante (sa evite de faire
+        //une requete comme on a deja linfo coté front
+    })
 })
 </script>
 {% endblock %}

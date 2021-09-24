@@ -9,7 +9,7 @@ use App\Entity\Messaging;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
-class MessageManager
+final class MessageManager
 {
     public function newMessage(
         User $user,

@@ -16,14 +16,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
- * @FOSRest\Route("/api-message/")
+ * @FOSRest\Route("/api-messagings/")
  */
 final class MessagingsController extends AbstractFOSRestController
 {
     /**
      * @Security("is_granted('ROLE_USER')")
      *
-     * @OA\Tag(name="Messages")
+     * @OA\Tag(name="Messagings")
      * @OA\Response(
      *     response="200",
      *     description="retrieve list of chat for current user successfully",

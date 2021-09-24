@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Chat\Controller\Api;
 
 use App\Chat\Services\MessageManager;
-use App\Chat\Services\Messages;
 use App\Chat\Services\PusherManager;
-use App\Entity\Message;
 use App\Entity\Messaging;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,8 +19,8 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Pusher\Pusher;
 use Pusher\PusherException;
-use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @FOSRest\Route("/api-message/")

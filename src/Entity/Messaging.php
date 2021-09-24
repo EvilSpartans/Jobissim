@@ -42,7 +42,7 @@ class Messaging
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="messagingParticipants")
-     * @Serializer\Groups(groups="chat_list", "messages_list")
+     * @Serializer\Groups(groups="chat_list", groups="messages_list")
      */
     private $participants;
 
