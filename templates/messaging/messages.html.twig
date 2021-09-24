@@ -1,0 +1,33 @@
+ <ul class="chat-box chatContainerScroll">
+    <div class="lala">
+        {% for message in messages %}
+        {% if message.author == app.user %}
+        <li class="chat-left">
+            <div class="chat-avatar">
+                {% if message.author.avatar != '' %}
+                <img src="{{ vich_uploader_asset(message.author, 'avatarFile')  }}" alt="{{ message.author.username }}">
+                {% else %}
+                <img src="{{ asset('assets/images/nopic.png')  }}" alt="{{ message.author.username }}">
+                {% endif %}
+                <div class="chat-name">{{ message.author.username }}</div>
+            </div>
+            <div class="chat-text">{{ message.content }}</div>
+            <div class="chat-hour">{{ message.createdAt|date('d/m/y') }} <span class="fa fa-check-circle"></span></div>
+        </li>
+        {% else %}
+        <li class="chat-right">
+            <div class="chat-hour">{{ message.createdAt|date('d/m/y') }} <span class="fa fa-check-circle"></span></div>
+            <div class="chat-text">{{ message.content }}</div>
+            <div class="chat-avatar">
+                {% if message.author.avatar != '' %}
+                <img src="{{ vich_uploader_asset(message.author, 'avatarFile')  }}" alt="{{ message.author.username }}">
+                {% else %}
+                <img src="{{ asset('assets/images/nopic.png')  }}" alt="{{ message.author.username }}">
+                {% endif %}
+                <div class="chat-name">{{ message.author.username }}</div>
+            </div>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </div>
+</ul>

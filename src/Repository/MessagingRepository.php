@@ -20,7 +20,7 @@ class MessagingRepository extends ServiceEntityRepository
         parent::__construct($registry, Messaging::class);
     }
 
-    public function findByAuthorOrParticipants(?User $id)
+    public function findByAuthorOrParticipants(?User $id): array
     {
         return $this->createQueryBuilder('m')
             ->leftJoin('m.participants', 'p')
@@ -43,35 +43,4 @@ class MessagingRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
-
-    // public function findByAuthorAndParticipant($user, $currentUser)
-    // {
-    //     return $this->createQueryBuilder('d')
-    //         ->leftJoin('d.participants', 'p')
-    //         ->andWhere('p.user = :user1')
-    //         ->andWhere('p.user = :user2')
-    //         ->setParameters(['user1' => $user, 'user2' => $currentUser])
-    //         ->setMaxResults(1)
-    //         ->getQuery()
-    //         ->getOneOrNullResult();
-    // }
-
-    // public function findOneDiscussionByUser(array $users, $currentUser)
-    // {
-    //     $query = $this->createQueryBuilder('d')
-    //         ->leftJoin('d.participants', 'p')
-    //         ->setMaxResults(1);
-
-    //     foreach ($users as $user) {
-    //         $query
-    //             ->where('d.author = :currentUser AND p.id = :user')
-    //             ->orWhere('d.author = :user AND p.id = :currentUser')
-    //             ->andWhere('p.user = :user')
-    //             ->setParameters(['user' => $user, 'currentUser' => $currentUser]);
-    //     }
-
-    //     return $query
-    //         ->getQuery()
-    //         ->getOneOrNullResult();
-    // }
 }

@@ -25,12 +25,13 @@
                             </div>
                         </div>
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
-                            <div id="selected-user">
-                            </div>
-                            <div class="chat-container" id="chat-container">
-                                <ul class="chat-box chatContainerScroll" id="chatContainerScroll">
-                                </ul>
-                                
+                            <div id="selected-user"></div>
+                            <div id="chat-container" class="chat-container"></div>
+                            <div class="form-group mt-3 mb-0" id="form-message" style="display: none;">
+                                <div class="form-group">
+                                    <textarea id="message_content" name="message[content]" required="required" placeholder="Écrire un message" style="min-height: 50px; height: 50px;" class="form-control form-control" rows="3"></textarea>
+                                </div>
+                                <button id="eventpusher" class="eventpusher" data-id="">Envoyer</button>
                             </div>
                         </div>
                     </div>
@@ -38,71 +39,99 @@
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 {% block javascript %}
 {{ parent() }}
 <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('.js-participants').select2()
-        $.ajax({
-            url: '{{ path('chat_list_by_user', {'id': app.user.id}) }}',
-            type: 'GET',
-             success: function (data) {
-                console.log(data)
-                let img = []
-                let authorPicture = []
-                let result = []
-                let imgAuthor  = ''
-                $(data['messaging']).each(function(e, messaging) {
-                     let contributors = []
-                     $.map(messaging['contributors'], function (contributor) {
-                         if (contributor.email !== '{{ app.user.email }}') {
-                               contributors.push(contributor.firstname+' '+contributor.lastname)
-                         } else if (messaging['author'].email) {
-                              contributors.push(messaging['author'].firstname+' '+messaging['author'].lastname)
+$(document).ready(function() {
+    $('.js-participants').select2()
+    $.ajax({
+     url: '{{ path('chat_list_by_user', {'id': app.user.id}) }}',
+     type: 'GET',
+     success: function (data) {
+         console.log(data)
+         let img = []
+         let authorPicture = []
+         let result = []
+         let imgAuthor  = ''
+            $(data['messaging']).each(function(e, messaging) {
+                 let contributors = []
+                 $.map(messaging['contributors'], function (contributor) {
+                     if (contributor.email !== '{{ app.user.email }}') {
+                           contributors.push(contributor.firstname+' '+contributor.lastname)
+                     } else if (messaging['author'].email) {
+                          contributors.push(messaging['author'].firstname+' '+messaging['author'].lastname)
+                     }
+                 })
+                let childBlock = '<p class="name-time"><span class="name" id="contributor_name">'+contributors+' '+'</span><span class="time" id="contributor_time">'+messaging.createdAt+'</span></p>'
+                if (contributors.length === 1) {
+                    $.map(messaging['contributors'], function (contributor) {
+                         if (contributor.avatar) {
+                             let userBlock = '<li class="user" id="messaging_id" data-id="msg_id"><img src="contributor_avatar" alt="contributor_avatar" style="display: block;" /><span class="status busy"></span>'+childBlock+'</li>'
+                             img.push(userBlock.replace('contributor_avatar', '/uploads/avatars/' + contributor.avatar).replace('messaging_id', 'messaging_'+messaging.id).replace('msg_id', messaging.id))
+                         } else {
+                             let imgNotFound = '<li class="user" id="messaging_id" data-id="msg_id"><img src="{{ asset('assets/images/nopic.png')  }}" alt="default picture" style="display: block;" /><span class="status busy"></span>'+childBlock+'</li>'
+                             img.push(imgNotFound.replace('messaging_id', 'messaging_'+messaging.id).replace('msg_id', messaging.id))
                          }
-                     })
-                    let childBlock = '<p class="name-time"><span class="name" id="contributor_name">'+contributors+' '+'</span><span class="time" id="contributor_time">'+messaging.createdAt+'</span></p>'
-                    if (contributors.length === 1) {
-                        $.map(messaging['contributors'], function (contributor) {
-                             if (contributor.avatar) {
-                                 let userBlock = '<li class="user" id="messaging_id" data-id="msg_id"><img src="contributor_avatar" alt="contributor_avatar" style="display: block;" /><span class="status busy"></span>'+childBlock+'</li>'
-                                 img.push(userBlock.replace('contributor_avatar', '/uploads/avatars/' + contributor.avatar).replace('messaging_id', 'messaging_'+messaging.id).replace('msg_id', messaging.id))
-                             } else {
-                                 let imgNotFound = '<li class="user" id="messaging_id" data-id="msg_id"><img src="{{ asset('assets/images/nopic.png')  }}" alt="default picture" style="display: block;" /><span class="status busy"></span>'+childBlock+'</li>'
-                                 img.push(imgNotFound.replace('messaging_id', 'messaging_'+messaging.id).replace('msg_id', messaging.id))
-                             }
-                        })
-                    } else {
-                        childBlock = 'Groupe : ' +childBlock
-                         $.map(messaging['author'], function (author) {
-                             if (author.avatar) {
-                                 let imgAuthor  = '<img src="contributor_avatar" alt="contributor_avatar" style="display: block;" />'
-                                  authorPicture = imgAuthor.replace('contributor_avatar', '/uploads/avatars/' + author.avatar).replace('messaging_id', 'messaging_'+messaging.id).replace('msg_id', messaging.id)
-                             } else {
-                                  imgAuthor  = '<img src="{{ asset('assets/images/nopic.png')  }}" alt="default picture" style="display: block;" />'
-                                  authorPicture = imgAuthor.replace('messaging_id', 'messaging_'+messaging.id)
-                             }
-                        })
-                        let li = '<li class="user" id="messaging_id" data-id="msg_id">'+authorPicture+'<span class="status busy"></span>'+childBlock+'</li>'
-                        result.push(li.replace('messaging_id', 'messaging_'+messaging.id).replace('msg_id', messaging.id))
-                    }
-                })
+                    })
+                } else {
+                    childBlock = 'Groupe : ' +childBlock
+                     $.map(messaging['author'], function (author) {
+                         if (author.avatar) {
+                             let imgAuthor  = '<img src="contributor_avatar" alt="contributor_avatar" style="display: block;" />'
+                              authorPicture = imgAuthor.replace('contributor_avatar', '/uploads/avatars/' + author.avatar).replace('messaging_id', 'messaging_'+messaging.id).replace('msg_id', messaging.id)
+                         } else {
+                              imgAuthor  = '<img src="{{ asset('assets/images/nopic.png')  }}" alt="default picture" style="display: block;" />'
+                              authorPicture = imgAuthor.replace('messaging_id', 'messaging_'+messaging.id)
+                         }
+                    })
+                    let li = '<li class="user" id="messaging_id" data-id="msg_id">'+authorPicture+'<span class="status busy"></span>'+childBlock+'</li>'
+                    result.push(li.replace('messaging_id', 'messaging_'+messaging.id).replace('msg_id', messaging.id))
+                }
+            })
 
-               $('#users').html(img , result)
-             },
-        }).done(function(){
-          $('#users li').click(function() {
-              $.ajax({
-                 url: '{{ path('get_messages', {'id': 'messagingId'}) }}'.replace('messagingId', $(this).data('id')),
+           $('#users').html(img).append(result)
+         },
+    }).done(function(){
+      $('#users li').click(function() {
+          let contributors = $(this).children('.name-time').children('#contributor_name').html()
+           retrieveMessages(contributors, $(this).data('id'))
+           $('#eventpusher').attr('data-id', $(this).data('id'))
+           $('#form-message').css('display', 'block')
+      });
+    })
+
+    $('#eventpusher').click(function() {
+        let messagingId = $(this).data('id')
+        $.ajax({
+           url: '{{ path('new_message', {'id' : 'messagingId'}) }}'.replace('messagingId', messagingId),
+           type: 'POST',
+           data: {'content': $('#message_content').val()},
+           success: function (data) {
+                 $.ajax({
+                 url: '{{ path('get_messages', {'id': 'messagingId'}) }}'.replace('messagingId', messagingId),
                  type: 'GET',
                  success: function (data) {
-                       $('.chat-container').html(data)
+                       $('#chat-container').html(data)
                  }
               })
-          });
+           }
+        })
     })
+
+    function retrieveMessages(contributors, dataId) {
+       $.ajax({
+         url: '{{ path('get_messages', {'id': 'messagingId'}) }}'.replace('messagingId', dataId),
+         type: 'GET',
+         success: function (data) {
+               $('#selected-user').html(contributors)
+               $('#chat-container').html(data)
+
+         }
+      })
+    }
 })
 </script>
 {% endblock %}

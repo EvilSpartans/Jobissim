@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Pusher\Pusher;
 use App\Entity\User;
 use App\Entity\Message;
@@ -10,6 +11,7 @@ use App\Form\MessageType;
 use App\Form\MessagingType;
 use App\Repository\MessageRepository;
 use App\Repository\MessagingRepository;
+use Pusher\PusherException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,23 +35,21 @@ class MessagingController extends AbstractController
 
     /**
      * @Route("/messaging-{id}", name="messaging_show", methods={"GET","POST"})
+     *
+     * @throws PusherException|GuzzleException
      */
     public function show(MessagingRepository $messagingRepository, MessageRepository $messageRepository, Messaging $messaging, Request $request): Response
     {
         $user = $this->getUser();
-        $conversations = $messagingRepository->findByAuthorOrParticipants($user);
-        $messages = $messageRepository->findByConversation($messaging);
 
-        // Pusher
-        $options = array(
-            'cluster' => 'eu',
-            'useTLS' => true
-        );
         $pusher = new Pusher(
             'ba75523bee28d7c644f2',
             '9597b6daf0fb4e20fda2',
             '1266737',
-            $options
+            [
+                'cluster' => 'eu',
+                'useTLS' => true
+            ]
         );
 
         //New message
@@ -84,9 +84,9 @@ class MessagingController extends AbstractController
         if ($messaging->getAuthor() == $user || $messaging->getParticipants()->contains($user) != false) {
 
             return $this->render('messaging/show.html.twig', [
-                'conversations' => $conversations,
+                'conversations' => $messagingRepository->findByAuthorOrParticipants($user),
                 'messaging' => $messaging,
-                'messages' => $messages,
+                'messages' => $messageRepository->findByConversation($messaging),
                 'form' => $form->createView()
             ]);
         } else {
@@ -143,7 +143,7 @@ class MessagingController extends AbstractController
     /**
      * @Route("/pusher_auth{id}", name="pusher_auth", methods={"GET","POST"})
      *
-     * @throws \Pusher\PusherException
+     * @throws PusherException
      */
     public function pusher()
     {

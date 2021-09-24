@@ -62,7 +62,10 @@ class MessageRepository extends ServiceEntityRepository
     public function getMessages(int $id)
     {
         return $this->createQueryBuilder('m')
+            ->select('CONCAT(a.lastname, \' \',  a.firstname) AS author_username', 'a.avatar, m.content, m.createdAt, m.id, CONCAT(p.lastname, \' \',  p.firstname) AS contributors_username', 'a.avatar')
             ->innerJoin('m.messaging', 'msg')
+            ->innerJoin('m.author', 'a')
+            ->innerJoin('msg.participants', 'p')
             ->andWhere('msg.id = :id')
             ->setParameter('id', $id)
             ->orderBy('m.id', 'ASC')
