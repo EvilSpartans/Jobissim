@@ -91,7 +91,6 @@ $(document).ready(function() {
                     result.push(li.replace('messaging_id', 'messaging_'+messaging.id).replace('msg_id', messaging.id))
                 }
             })
-
            $('#users').html(img).append(result)
          },
     }).done(function(){
@@ -102,7 +101,6 @@ $(document).ready(function() {
            $('#form-message').css('display', 'block')
       });
     })
-
     $('#eventpusher').click(function() {
         let messagingId = $(this).data('id')
         $.ajax({
@@ -120,7 +118,6 @@ $(document).ready(function() {
            }
         })
     })
-
     function retrieveMessages(contributors, dataId) {
        $.ajax({
          url: '{{ path('get_messages', {'id': 'messagingId'}) }}'.replace('messagingId', dataId),
@@ -128,7 +125,19 @@ $(document).ready(function() {
          success: function (data) {
                $('#selected-user').html(contributors)
                $('#chat-container').html(data)
-
+               Pusher.logToConsole = true;
+                let pusher = new Pusher('ba75523bee28d7c644f2', {
+                    cluster: 'eu',
+                });
+                let channel = pusher.subscribe('my-channel-' + JSON.parse(dataId));
+                channel.bind('my_event',
+                    function (data) {
+                        console.log(data);
+                        $('.lala').append('<li class = "chat-left"><div class="chat-avatar"><img src="/uploads/avatars/' + data['image'] + '"><div class="chat-name">' + data['user'] + '</div></div><div class="chat-text">' + data['content'] + '</div><div class="chat-hour">' + data['date'] + '<span class="fa fa-check-circle"></span></div>');
+                    });
+                channel.bind('pusher:subscription_succeeded', function (members) {
+                    console.log('successfully subscribed!');
+                });
          }
       })
     }

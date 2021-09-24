@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Chat\Controller\Api;
 
+use App\Chat\Services\MessageManager;
+use App\Chat\Services\Messages;
+use App\Chat\Services\PusherManager;
 use App\Entity\Message;
 use App\Entity\Messaging;
 use App\Repository\MessageRepository;
@@ -12,9 +15,12 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as FOSRest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use GuzzleHttp\Exception\GuzzleException;
 use http\Exception\RuntimeException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
+use Pusher\Pusher;
+use Pusher\PusherException;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
@@ -86,31 +92,34 @@ final class MessagesController extends AbstractFOSRestController
      * @param Messaging $messaging
      * @param EntityManagerInterface $entityManager
      * @param ParamFetcherInterface $paramFetcher
+     * @param PusherManager $pusherManager
+     * @param Pusher $pusher
+     * @param MessageManager $messageManager
      *
      * @return View
+     *
+     * @throws GuzzleException
      */
     public function new(
         Messaging $messaging,
         EntityManagerInterface $entityManager,
-        ParamFetcherInterface $paramFetcher
+        ParamFetcherInterface $paramFetcher,
+        PusherManager $pusherManager,
+        Pusher $pusher,
+        MessageManager $messageManager
     ): View
     {
-        if (!$this->getUser()) {
+        $user = $this->getUser();
+        if (!$user) {
             throw new \LogicException('Unauthorized user to make this action');
         }
 
         try {
-            $message = new Message();
-            $message->setAuthor($this->getUser());
-            $message->setContent($paramFetcher->get('content'));
-            $message->setCreatedAt(new \DateTime());
-            $message->setMessaging($messaging);
-            $entityManager->persist($message);
-            $entityManager->flush();
+            $message = $messageManager->newMessage($user, $entityManager, $paramFetcher->get('content'), $messaging);
+            $pusherManager->trigger($message, $messaging, $pusher);
+            return $this->view($pusher, Response::HTTP_CREATED);
 
-            return $this->view('success', Response::HTTP_CREATED);
-
-        } catch (\RuntimeException $e) {
+        } catch (\RuntimeException | PusherException $e) {
             throw new RuntimeException('error : '. $e);
         }
     }
