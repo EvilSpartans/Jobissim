@@ -2617,6 +2617,22 @@ section.wp-block-cover-image h2 {
 .datafetch {
     background: #fff;
 }
+
+.twitter-typeahead {
+    display: initial !important;
+    position: initial !important;
+    background: unset !important;
+}
+
+input[id ='tags'] {
+    padding: 12px 30px !important;
+}
+
+.keyword.tt-hint {
+    background: unset !important;
+    padding: 12px 30px !important;
+}
+
 .sticky .blog-item {
     color: #fff;
 }
