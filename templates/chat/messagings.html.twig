@@ -24,14 +24,13 @@
                                         <select class="form-control js-participants" placeholder="Rechercher" id="js-participants" multiple="multiple">
                                         </select>
                                         <div class="input-group-btn">
-                                            <button type="button" class="btn btn-info" id="new-messaging">
+                                            <button type="button" class="btn btn-info" id="new-messaging" data-id="">
                                                 <i class="fa fa-search"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                {# a remplacer par l'input sur cette page #}
-                                <a href="{{ path('messaging_new') }}" class="text-center">Nouvelle conversation</a>
+                                <hr />
                                 <ul id="users"></ul>
                             </div>
                         </div>
@@ -57,7 +56,6 @@
 <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 <script>
 $(document).ready(function() {
-
      let outputUsers = []
      $.ajax({
          url: '{{ path('users_followed_list_by_user') }}',
@@ -68,7 +66,7 @@ $(document).ready(function() {
                  outputUsers.push('<option value='+user.id+'>'+user.username+'</option>')
              })
              $('#js-participants').html(outputUsers)
-         }
+         },
      })
 
     $('.js-participants').select2()
@@ -166,13 +164,32 @@ $(document).ready(function() {
          }
       })
     }
-
     $('#new-messaging').click(function() {
-        // si l'id de celui ci nexiste pas en bdd alors on affiche une nouvelle fenetre de message
-        // sinon on recupere la conv associé
-        // ou alors au chargement de la liste messaging on injecte dans option en data id l'id de la conv
-        //et si celui ci est inexistant alors on affiche une nouvelle fenetre, sinon on recupere la conv existante (sa evite de faire
-        //une requete comme on a deja linfo coté front
+        $.ajax({
+            url: '{{ path('get_messaging_by_contributor') }}',
+            type: 'GET',
+            data: {
+                contributors : $('#js-participants').val(),
+            },
+            success: function (data) {
+                console.log(data)
+                if (data.length >= 1) {
+                  $('#users li').each(function (e, li) {
+                        if(jQuery.inArray($(li).data('id'), data) != -1) {
+                            $(this).css('display', 'block')
+                        } else {
+                             $(this).css('display', 'none')
+                             //new messaging + new message
+                             console.log($(".select2-selection__choice__display").val())
+                             $('#selected-user').html($(".select2-selection__choice__display").val())
+                             $('#form-message').css('display', 'block')
+                        }
+                    })
+                } else {
+                    $('#users li').css('display', 'block')
+                }
+            }
+        })
     })
 })
 </script>

@@ -43,4 +43,18 @@ class MessagingRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function getMessagingByContributors(array $contributors, User $user)
+    {
+        return $this->createQueryBuilder('m')
+            ->select('m.id')
+            ->leftJoin('m.participants', 'p')
+            ->where('m.author = :id')
+            ->andWhere('p.id IN (:contributors)')
+            ->orderBy('m.createdAt', 'DESC')
+            ->setParameter('contributors', $contributors)
+            ->setParameter('id', $user)
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -10,6 +10,7 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -30,6 +31,8 @@ security:
                 domain: ~
 
     access_control:
+        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api,  roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/new-post, roles: ROLE_USER }
         - { path: ^/account, roles: ROLE_USER }
