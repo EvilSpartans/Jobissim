@@ -19,6 +19,7 @@ textarea,
 }
 
 .blog-item,
+.tt-menu,
 .datafetch,
 .comment-respond,
 .my-account-content,
@@ -35,6 +36,10 @@ select,
 .post-navigation,
 .comments-area, .pagination a.page-link {
     background: #181818;
+}
+
+hr.search {
+    border-top: 1px solid rgb(48, 48, 48);
 }
 
 body,

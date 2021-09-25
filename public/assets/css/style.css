@@ -486,6 +486,21 @@ button.mfp-close {
 /*--------------------------------------------------------------
 # Navigation
 --------------------------------------------------------------*/
+.tt-suggestion.tt-selectable {
+    list-style-type: none;
+}
+
+.tt-menu {
+    background: #fafafa;
+    left: 0px;
+    right: 0px;
+    border-radius: 0 0 35px 35px !important;
+}
+
+hr.search {
+    border-top: 1px solid rgb(238, 238, 238);
+}
+
 .site-header {
     padding: 20px 0;
 }

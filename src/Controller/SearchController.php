@@ -44,9 +44,11 @@ class SearchController extends AbstractController
         $outputUsers = [];
         foreach ($users as $user) {
             $outputUsers[$user['id']] = [
+                'id' => $user['id'],
                 'firstname' => $user['firstname'],
                 'lastname' => $user['lastname'],
                 'avatar' => $user['avatar'],
+                'type' => 'user'
             ];
         }
 
@@ -54,8 +56,10 @@ class SearchController extends AbstractController
         $outputPost = [];
         foreach ($posts as $post) {
             $outputPost[$post['id']] = [
+                'id' => $post['id'],
                 'title' => $post['title'],
-                'image' =>  $post['image']
+                'image' =>  $post['image'],
+                'type' => 'post'
             ];
         }
         return new JsonResponse([$outputUsers, $outputPost], Response::HTTP_OK);

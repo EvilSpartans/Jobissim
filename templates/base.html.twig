@@ -59,7 +59,9 @@
                     <form id="searchForm" class="ajax-search-form" action="{{ path('search') }}" method="POST">
                         <input id="tags" type="search" name="search" class="keyword" placeholder="Rechercher">
                         <button type="submit"><i class="fa fa-search"></i></button>
-                        <div class="datafetch"></div>
+                        <div class="datafetch">
+                            <div class="widget p-0"></div>
+                        </div>
                     </form>
                 </div>
                 <div class="col-xl-1 col-lg-1 my-auto text-right">
@@ -381,11 +383,7 @@
                         return $.map(datas, function (data) {
                             return $.map(data, function (item) {
                                 console.log(item);
-                                return {
-                                    item_id: item.id,
-                                    item_name: item.name,
-                                    item_image: item.image,
-                                };
+                                return item;
                             })
                         });
                     },
@@ -399,8 +397,24 @@
                     source: datas.ttAdapter(),
                     templates: {
                         suggestion: function (item) {
-                            return `<div class='datafetch'><ul><li>${item.name}</li></ul></div>`;
-                        },
+                            return `<ul><hr class="search"><li>`
+                                + (item.type === 'post'
+                                    ?
+                                    `<a href="/post-${item.id}">
+                                <div class="bid"><img class="avatar" src="uploads/images/${item.image}"
+                                alt="${item.title}">
+                                # ${item.title}</a>`
+                                    :
+                                    `<a href="/account_${item.id}">
+                                <div class="bid">`
+                                    + (item.avatar !== null
+                                        ?
+                                        `<img class="avatar" src="uploads/avatars/${item.avatar}" alt="${item.firstname}">`
+                                        :
+                                        `<img class="avatar" src="assets/images/nopic.png" alt="${item.firstname}">`
+                                    ) + `@ ${item.firstname} ${item.lastname}</a>`) +
+                                `</li></ul>`;
+                        }
                     },
                 }
             );
